@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: tenpay_db
+    environment:
+      POSTGRES_DB: tenpay
+      POSTGRES_USER: tenpay
+      POSTGRES_PASSWORD: tenpay_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tenpay"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ../backChallenge
+      dockerfile: Dockerfile
+    container_name: tenpay_backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/tenpay
+      SPRING_DATASOURCE_USERNAME: tenpay
+      SPRING_DATASOURCE_PASSWORD: tenpay_secret
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tenpay_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

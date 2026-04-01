@@ -1,0 +1,55 @@
+# ─── Java / Maven ────────────────────────────────────────────────────────────
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# ─── Node / Frontend ─────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+
+# ─── Variables de entorno y secretos ─────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.env
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# ─── IDEs ─────────────────────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.project
+.classpath
+.settings/
+.factorypath
+*.swp
+*.swo
+
+# ─── Claude Code (configuración local del IDE) ───────────────────────────────
+.claude/
+
+# ─── Sistema operativo ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ─── Docker ───────────────────────────────────────────────────────────────────
+docker-compose.override.yml
+
+# ─── Tests / Coverage ─────────────────────────────────────────────────────────
+frontend/coverage/

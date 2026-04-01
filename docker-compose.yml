@@ -1,0 +1,69 @@
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: tenpay_db
+    environment:
+      POSTGRES_DB: tenpay
+      POSTGRES_USER: tenpay_user
+      POSTGRES_PASSWORD: tenpay_pass
+    ports:
+      # 5432 expuesto para poder conectarse con un cliente SQL (DBeaver, psql) durante el desarrollo.
+      # En producción este puerto NO se expone.
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tenpay-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tenpay_user -d tenpay"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      # start_period: tiempo que Docker ignora fallos del healthcheck.
+      # La primera vez PostgreSQL inicializa el cluster de datos desde cero (~20s).
+      # Sin este parámetro el healthcheck cuenta esos fallos y declara el contenedor
+      # unhealthy antes de que PostgreSQL termine de arrancar.
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tenpay_backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/tenpay
+      SPRING_DATASOURCE_USERNAME: tenpay_user
+      SPRING_DATASOURCE_PASSWORD: tenpay_pass
+      # JWT_SECRET: mínimo 32 caracteres. Cambiar en producción (Railway → variables de entorno).
+      JWT_SECRET: tenpay-local-dev-secret-key-change-in-prod!!
+      MAIL_ENABLED: "false"
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "8080:8080"
+    networks:
+      - tenpay-net
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tenpay_frontend
+    ports:
+      # Nginx corre en el puerto 80 dentro del contenedor.
+      # 3000:80 = "el puerto 3000 de tu máquina llega al 80 del contenedor".
+      - "3000:80"
+    networks:
+      - tenpay-net
+    depends_on:
+      - backend
+
+networks:
+  tenpay-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
