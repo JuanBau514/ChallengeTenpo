@@ -28,7 +28,7 @@ spring:
       mail.smtp.starttls.enable: true
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 # JWT: secret debe tener mínimo 32 caracteres (256 bits para HMAC-SHA256)
 jwt:
